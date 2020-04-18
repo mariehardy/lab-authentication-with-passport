@@ -9,6 +9,19 @@ const mongoose = require('mongoose');
 const logger = require('morgan');
 const path = require('path');
 
+const User = require('./models/User.model');
+
+
+
+
+// For Passport to work:
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const MongoStore = require("connect-mongo")(session);
+
+
 mongoose
   .connect('mongodb://localhost/auth-with-passport', {
     useNewUrlParser: true,
@@ -28,6 +41,75 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+
+
+
+// express-session configuration 
+app.use(session({
+  secret: "ABC",
+  cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    resave: true,
+    saveUninitialized: false,
+    ttl: 24 * 60 * 60 // 1 day
+  })
+}));
+ 
+
+
+
+// enables flash messages
+const flash = require('connect-flash');
+app.use(flash());
+
+
+
+// Passport configuration
+
+// Define three methods that Passport needs to work
+// 1- Strategy 2- user serializer 3- user deserializer
+// **needs to be placed before the passport.initialize() function
+passport.serializeUser((user, callback) => {
+  callback(null, user._id);
+});
+
+passport.deserializeUser((id, callback) => {
+  User.findById(id)
+    .then(user => {
+      callback(null, user);
+    })
+    .catch(error => {
+      callback(error);
+    });
+});
+
+passport.use(new LocalStrategy({
+  passReqToCallback: true
+}, (req, username, password, callback) => {
+    User.findOne({ username })
+      .then(user => {
+        if (!user) {
+          return callback(null, false, { message: 'Incorrect username' });
+        }
+        if (!bcrypt.compareSync(password, user.password)) {
+          return callback(null, false, { message: 'Incorrect password' });
+        }
+        callback(null, user);
+      })
+      .catch(error => {
+        callback(error);
+      });
+  })
+);
+
+// initialize passport and passport session, as middlewares
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
 
 // Express View engine setup
 

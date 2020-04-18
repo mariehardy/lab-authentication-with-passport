@@ -1,0 +1,15 @@
+{{!-- views/auth/signup.hbs --}}
+
+<form action="/signup" method="post">
+<label for="username">Username</label>
+<input name="username" id="username" type="text" placeholder="username">
+<br /><br />
+<label for="password">password</label>
+<input name="password" id="password" type="password" placeholder="password">
+<br /><br />
+<button type="submit">Create account</button>
+</form>
+
+  {{#each errorArr}}
+    <p style="color: red;">{{this}}</p>
+  {{/each}}
