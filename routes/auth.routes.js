@@ -13,24 +13,8 @@ const bcryptSalt = 10;
 const passport = require('passport');
 // const LocalStrategy = require('passport-local').Strategy;
 
+const loggedInUser = require('../helpers/middlewares').loggedInUser
 
-// Middleware to check user is logged in each route this is called
-// const ensureLogin = require('connect-ensure-login');
-// Best to just write this ourselves, cause this doesn't work with Flash::
-
-// MAKE IT DRY !! (developpers dont like to repeat themselves)
-// this is a middleware
-
-let loggedInUser = (req, res, next) => {
-  // req.user // passport makes this available 
-  if (req.user) {
-    next()
-  } else {
-    req.flash('error', 'You have to be logged in to view this page')
-    req.flash('error', 'this is Message 2')
-    res.redirect('/login?redirectBackTo=' + req.path)
-  }
-}
 
 
 
@@ -52,7 +36,8 @@ router.post("/signup", (req,res, next) => {
   let user = new User({ username: req.body.username, password: hashPass })
   user.save().then(() => {
     console.log('user was created successfully')
-    res.redirect("/login")
+    req.login(user, () => { res.redirect('/') })
+    // res.redirect("/login")
   })
 })
 
@@ -78,10 +63,23 @@ router.post("/login", passport.authenticate('local', {
 })
 );
 
+// GET LOGIN WITH SLACK - PASSPORT STRATEGY
+router.get("/auth/slack", passport.authenticate("slack"));
+router.get(
+  "/auth/slack/callback",
+  passport.authenticate("slack", {
+    successRedirect: "/private-page",
+    failureRedirect: "/" // here you would navigate to the classic login page
+  })
+);
+
+
+
 router.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/login');
 });
+
 
 
 

@@ -6,3 +6,23 @@ a {
   color: #00B7FF; }
 
 /*# sourceMappingURL=style.css.map */
+
+
+input:invalid {
+  box-shadow: 0 0 5px 1px red;
+}
+
+input:focus:invalid {
+  box-shadow: none;
+}
+
+input:invalid:required {
+  background-image: linear-gradient(to right, pink, lightgreen);
+}
+
+input:valid {
+  border: 2px solid black;
+}
+
+
+

@@ -9,8 +9,20 @@
 
 <p>Welcome Stranger</p>
 
-<a href="/login">LOGIN</a>
-OR
-<a href="/signup">Create an account</a>
-
 {{/if}}
+
+
+{{!-- {{#if slackUser}}
+<p>Welcome {{profile.displayName}}</p>
+
+<a href="/logout">LOGOUT</a>
+
+{{/if}} --}}
+
+
+<a href="/login">LOGIN</a>
+<br /><br />
+<a href="/signup">Create an account</a>
+<br /><br />
+<a href="/auth/slack">Login With Slack</a>
+

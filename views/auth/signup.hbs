@@ -1,11 +1,11 @@
 {{!-- views/auth/signup.hbs --}}
 
 <form action="/signup" method="post">
-<label for="username">Username</label>
-<input name="username" id="username" type="text" placeholder="username">
+<label for="username">Username&#42;</label>
+<input name="username" id="username" type="text" placeholder="username" required minlength="3" maxlength="10">
 <br /><br />
-<label for="password">password</label>
-<input name="password" id="password" type="password" placeholder="password">
+<label for="password">Password&#42;</label>
+<input name="password" id="password" type="password" placeholder="password" required  minlength="3" maxlength="10">
 <br /><br />
 <button type="submit">Create account</button>
 </form>

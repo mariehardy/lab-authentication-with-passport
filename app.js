@@ -85,6 +85,7 @@ passport.deserializeUser((id, callback) => {
     });
 });
 
+// Login strategies
 passport.use(new LocalStrategy({
   passReqToCallback: true
 }, (req, username, password, callback) => {
@@ -102,6 +103,37 @@ passport.use(new LocalStrategy({
         callback(error);
       });
   })
+);
+
+const SlackStrategy = require("passport-slack").Strategy;
+
+passport.use(
+  new SlackStrategy(
+    {
+      clientID: "2432150752.1100925735216",
+      clientSecret: "0b19e747f4eb4b8dbc2f81fa5505704a",
+      callbackURL: "/auth/slack/callback"
+    },
+    (accessToken, refreshToken, profile, done) => {
+      // to see the structure of the data in received response:
+      console.log("Slack account details:", profile);
+
+      User.findOne({ slackID: profile.id })
+        .then(user => {
+          if (user) {
+            done(null, user);
+            return;
+          }
+
+          User.create({ slackID: profile.id })
+            .then(newUser => {
+              done(null, newUser);
+            })
+            .catch(err => done(err)); // closes User.create()
+        })
+        .catch(err => done(err)); // closes User.findOne()
+    }
+  )
 );
 
 // initialize passport and passport session, as middlewares
